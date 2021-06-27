@@ -5,16 +5,32 @@ import json
 import os
 from dotenv import load_dotenv
 load_dotenv() #take envirment variables from .env
-import gspread
+import gspread #pip install gspread
+from datetime import date, datetime
 
+gc = gspread.service_account_from_dict(json.loads(os.environ.get('credentials'))) 
+sh = gc.open_by_key('119aFQyS4gKwkqjDKhrxLkEuEA5WxFfz5rNm8OiPI4T0')
+worksheet = sh.sheet1
+
+intDay = datetime.now().timetuple().tm_yday
+
+#res = worksheet.get_all_records() #Dict
+#res = worksheet.get_all_values() #list of rows
+#res = worksheet.row_values(1) #prints the row that we want
+#res = worksheet.col_values(1) #prints the column that we want
+#res = worksheet.get('B2') #print the content of the specified row you can also print range
+#print(res)
+#stats = ['6/27/2021', '_vv_', 'Bedwars', 'FKDR', 94]
+#worksheet.insert_row(stats, 2)
+
+#worksheet.delete_row(2)
 API_KEY = os.environ.get('API_KEY')
 strPlayer = input("Who should we look up? ")
 
 dictGames = {'d':'Duels', 'D':'Duels', 'duels':'Duels', 'Duels':'Duels','bw':'Bedwars', 'BW':'Bedwars', 'Bw':'Bedwars', 'bW':'Bedwars'}
-dictGameStats = {"Duels":["bridge_doubles_wins", "bridge_four_wins", "bridge_3v3v3v3_losses", "bridge_3v3v3v3_wins", "bridge_3v3v3v3_rounds_played", "bridge_3v3v3v3_wins", "bridge_four_rounds_played", "bridge_2v2v2v2_losses", "bridge_2v2v2v2_rounds_played", "bridge_doubles_rounds_played", "bridge_doubles_losses", "bridge_four_losses","bridge_duel_wins", "bridge_duel_losses"]}
+dictGameStats = {"Duels":["bridge_doubles_wins", "bridge_four_wins", "bridge_3v3v3v3_losses", "bridge_3v3v3v3_wins", "bridge_2v2v2v2_losses", "bridge_2v2v2v2_wins", "bridge_doubles_losses", "bridge_four_losses","bridge_duel_wins", "bridge_duel_losses"]}
 
-Game = dictGames[input('What Game? ')]
-print(Game)
+strGame = dictGames[input('What Game? ')]
 
 def getInfo(call):
     r = requests.get(call)
@@ -26,11 +42,15 @@ if data == {'success': False, 'cause': 'You have already looked up this name rec
     print('you already entered this username recently')
     stat = ''
 else:
-    for stat in dictGameStats[Game]:
-        print(stat)
-    #stat = data['player']['stats'][Game]['bridge_duel_wins'] 
+    for stats in dictGameStats[strGame]:
+        try:
+            stat = data['player']['stats'][strGame][stats] 
+            lstSheetRow = [intDay, strPlayer, strGame, stats, stat]
+            worksheet.insert_row(lstSheetRow, 2)
+        except:
+            print(f'No data for {stats}')
 
-print(stat)
+
 #for key in stat:
 #    print(key)
 
