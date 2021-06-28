@@ -1,0 +1,7 @@
+#res = worksheet.get_all_records() #Dict
+#lstRows = worksheet.get_all_values() #list of rows
+#res = worksheet.row_values(1) #prints the row that we want
+#res = worksheet.col_values(1) #prints the column that we want
+#res = worksheet.get('B2') #print the content of the specified row you can also print range
+#worksheet.insert_row(stats, 2)
+#worksheet.delete_row(2)
